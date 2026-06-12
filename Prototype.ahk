@@ -97,7 +97,7 @@ MainLoop() {
     WinActivate(GTA_TITLE)
     WinWaitActive(GTA_TITLE, , 2)
     Sleep(100)
-    msg := "Precisando upar sua conta? ZAP : 15991285655 DC : arghohyes - (MELHOR LOJA + DE 60 AVALIAÇÕES)"
+    msg := "Precisando de Dinheiro, Level e Desbloqueios? Me chama no ZAP 15991285655 Ou no DC ozarkontop - WinstreakModz"
     Loop Parse, msg {
         if !running
             return
