@@ -3,6 +3,38 @@
 SetKeyDelay(50, 50)
 GTA_TITLE := "Grand Theft Auto V"
 running := false
+wasActive := false
+
+; === Monitor de foco da janela do GTA ===
+SetTimer(CheckGTAFocus, 500)
+
+CheckGTAFocus() {
+    global running, wasActive, GTA_TITLE
+
+    ; Pega a janela que está com o mouse/foco ativo (foreground)
+    activeHwnd := WinGetID("A")
+    gtaHwnd := WinExist(GTA_TITLE)
+
+    isActive := (activeHwnd = gtaHwnd) && gtaHwnd
+
+    ; GTA acabou de receber foco
+    if isActive && !wasActive && !running {
+        wasActive := true
+        Sleep(2500)
+        ; Confirma que ainda está focado depois dos 2.5s
+        activeHwnd2 := WinGetID("A")
+        if (activeHwnd2 = gtaHwnd) {
+            running := true
+            SetTimer(MainLoop, -10)
+        }
+    }
+    ; GTA perdeu foco — pausa o loop
+    else if !isActive && wasActive {
+        wasActive := false
+        running := false
+    }
+}
+
 GTASend(key) {
     global GTA_TITLE
     WinActivate(GTA_TITLE)
@@ -13,6 +45,7 @@ GTASend(key) {
     SendMode "Input"
     Sleep(60)
 }
+
 GTAClick(x, y) {
     global GTA_TITLE
     WinActivate(GTA_TITLE)
@@ -24,25 +57,20 @@ GTAClick(x, y) {
     SendMode "Input"
     Sleep(100)
 }
-k::
-{
+
+; Tecla K ainda funciona como toggle manual
+k:: {
     global running
-    ToolTip("Aguardando 2.5s...")
-    Sleep(2500)
     running := !running
-    ToolTip(running ? "ATIVADO" : "DESATIVADO")
-    SetTimer(() => ToolTip(), -2000)
     if running
         SetTimer(MainLoop, -10)
 }
-MainLoop()
-{
+
+MainLoop() {
     global running, GTA_TITLE
     if !running
         return
     if !WinExist(GTA_TITLE) {
-        ToolTip("GTA 5 nao encontrado!")
-        SetTimer(() => ToolTip(), -3000)
         running := false
         return
     }
@@ -62,7 +90,7 @@ MainLoop()
     Sleep(500)
     GTAClick(284, 490)
     Sleep(500)
-    ; === 4 Enters com delay de 500ms ===
+    ; === 4 Enters ===
     GTASend("{Enter}")
     Sleep(500)
     GTASend("{Enter}")
@@ -71,37 +99,30 @@ MainLoop()
     Sleep(500)
     GTASend("{Enter}")
     Sleep(500)
-
-    ; === Aguarda 3 segundos antes de fazer os cliques extras ===
     Sleep(3000)
-
     if !running
         return
-
-    ; === Cliques em X:982 Y:130 (3x) ===
+    ; === Cliques em X:982 Y:130 ===
     GTAClick(982, 130)
     Sleep(300)
     GTAClick(982, 130)
     Sleep(300)
     GTAClick(982, 130)
     Sleep(300)
-
-    ; === Cliques em X:308 Y:306 (3x) ===
+    ; === Cliques em X:308 Y:306 ===
     GTAClick(308, 306)
     Sleep(300)
     GTAClick(308, 306)
     Sleep(300)
     GTAClick(308, 306)
     Sleep(300)
-
-    ; === Cliques em X:319 Y:196 (3x) ===
+    ; === Cliques em X:319 Y:196 ===
     GTAClick(319, 196)
     Sleep(300)
     GTAClick(319, 196)
     Sleep(300)
     GTAClick(319, 196)
     Sleep(300)
-
     ; === 3 Enters ===
     GTASend("{Enter}")
     Sleep(500)
@@ -109,16 +130,12 @@ MainLoop()
     Sleep(500)
     GTASend("{Enter}")
     Sleep(500)
-
-    ; === Aguarda o restante dos 55 segundos (55000 - 3000 - tempo dos cliques ~6s) ===
     Sleep(46000)
-
     if !running
         return
     ; === Abre o chat ===
     GTASend("t")
     Sleep(1000)
-    ; === Digita a mensagem ===
     if !WinExist(GTA_TITLE) {
         running := false
         return
@@ -126,7 +143,7 @@ MainLoop()
     WinActivate(GTA_TITLE)
     WinWaitActive(GTA_TITLE, , 2)
     Sleep(100)
-    msg := "Precisando de Dinheiro, Level e Desbloqueios? Me chama no ZAP 15991285655 Ou no DC ozarkontop - WinstreakModz"
+    msg := "Bom dia pessoal Deus abencoe vcs do meu servidor de FiveM, adm ama vcs"
     Loop Parse, msg {
         if !running
             return
